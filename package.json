@@ -19,6 +19,8 @@
   "homepage": "https://github.com/Hydra07188/e-con01#readme",
   "dependencies": {
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1"
   }
 }

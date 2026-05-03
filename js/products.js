@@ -1,7 +1,7 @@
 // ==========================================
 // 1. STATE (The Source of Truth)
 // ==========================================
-let allProducts = [];
+let allProducts = []; // เก็บข้อมูลที่ถูกดึงมาจาก Backend
 let cart = {};
 
 // ==========================================
@@ -18,25 +18,28 @@ const cartBadge = document.getElementById('cart-badge');
 function renderProducts(productsToRender) {
     productContainer.innerHTML = '';
 
-    if (productsToRender.length === 0) {
+    // ถ้าไม่พบข้อมูล (ได้ Array ว่างกลับมาจาก Backend)
+    if (!productsToRender || productsToRender.length === 0) {
         productContainer.innerHTML = `
             <div class="col-12 text-center py-5">
                 <h3 class="text-black mb-3">No results found</h3>
-                <p class="text-muted">ไม่พบสินค้าที่ตรงกับคำค้นหาหรือหมวดหมู่ที่คุณเลือก ลองค้นหาด้วยคำอื่นดูนะครับ</p>
+                <p class="text-muted">ไม่พบสินค้าในหมวดหมู่นี้ในฐานข้อมูลครับ</p>
             </div>
         `;
         return;
     }
 
     productsToRender.forEach(product => {
-        // แก้ไขดึงค่าจาก product.title ให้ตรงกับ JSON
-        const productName = product.title || product.name; 
+        // รองรับทั้งชื่อ field ว่า title และ name
+        const productName = product.title || product.name;
+        
+        // เราใช้ parseFloat เผื่อราคาถูกส่งมาเป็น String จะได้โชว์ทศนิยม .2 หลักไม่ Error
         const productHTML = `
             <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
                 <a class="product-item" href="cart.html">
                     <img src="${product.image}" class="img-fluid product-thumbnail" alt="${productName}">
                     <h3 class="product-title">${productName}</h3>
-                    <strong class="product-price">$${product.price.toFixed(2)}</strong>
+                    <strong class="product-price">$${parseFloat(product.price).toFixed(2)}</strong>
 
                     <span class="icon-cross add-to-cart" data-product-id="${product.id}" data-price="${product.price}" title="Add to cart">
                         <img src="images/cross.svg" class="img-fluid" alt="Add to cart">
@@ -48,18 +51,14 @@ function renderProducts(productsToRender) {
     });
 }
 
-// ฟังก์ชันสำหรับคำนวณและอัปเดตตัวเลขบนไอคอนตะกร้า
 function updateCartBadge() {
-    if (!cartBadge) return; // ป้องกัน Error ถ้าหา element ไม่เจอ
+    if (!cartBadge) return; 
 
     let totalItems = 0;
-    
-    // วนลูป Object cart เพื่อบวกจำนวนสินค้า (Quantity) ทุกชิ้นเข้าด้วยกัน
     for (const productId in cart) {
         totalItems += cart[productId];
     }
 
-    // ถ้ามีของในตะกร้า ให้โชว์ "ตัวเลขจำนวนรวม" ถ้าไม่มีให้ซ่อนป้ายแดง
     if (totalItems > 0) {
         cartBadge.innerText = totalItems;
         cartBadge.style.display = 'block';
@@ -69,19 +68,56 @@ function updateCartBadge() {
 }
 
 // ==========================================
-// 4. BUSINESS LOGIC (The Consumer/Handler)
+// 4. BUSINESS LOGIC & API CALL (เชื่อม SQLite)
 // ==========================================
-function filterAndRenderProducts() {
+// 🌟 ฟังก์ชันหลัก: ยิง API ไปหา Backend เพื่อคัดกรองข้อมูลตามโจทย์!
+async function fetchProductsFromBackend(category) {
+    try {
+        productContainer.innerHTML = '<h3 class="text-center w-100 py-5">Loading...</h3>';
+
+        // จัดการกรณีค่าว่าง ให้ดึงค่า hat มาโชว์เป็นค่าเริ่มต้น (หรือค่าอื่นๆ ที่คุณต้องการ)
+        const queryParam = (!category || category === 'All') ? 'hat' : category;
+        
+        // ยิง Request พร้อม Query ตรงตาม Contract!
+        const response = await fetch(`/api/products?category=${queryParam}`); 
+        
+        // ดัก Error 404 (หาหมวดหมู่ไม่เจอใน Database)
+        if (response.status === 404) {
+            allProducts = []; 
+            renderProducts(allProducts);
+            return;
+        }
+
+        // ดัก Error 500 (ระบบพัง)
+        if (response.status === 500) {
+            throw new Error("Internal Server Error");
+        }
+
+        // กรณี 200 OK ได้ JSON ข้อมูลสินค้า
+        allProducts = await response.json();
+        
+        // ตรวจสอบว่าในช่อง Search มีการพิมพ์ชื่อค้างไว้ไหม ถ้ามีให้เอามา Filter ต่อหน้าเว็บ
+        applyLocalSearchFilter();
+
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสินค้า:", error);
+        productContainer.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <h3 class="text-danger mb-3">Error Loading Products</h3>
+                <p class="text-muted">ไม่สามารถเชื่อมต่อฐานข้อมูล SQLite ได้ โปรดตรวจสอบเซิร์ฟเวอร์</p>
+            </div>
+        `;
+    }
+}
+
+// ฟังก์ชันสำหรับช่องค้นหา (ค้นหาจากข้อมูลที่ได้มาจาก Backend แล้ว)
+function applyLocalSearchFilter() {
+    if (!searchInput) return;
     const searchTerm = searchInput.value.toLowerCase().trim();
-    const selectedCategory = categoryFilter.value;
-
+    
     const filteredProducts = allProducts.filter(product => {
-        // เช็คเงื่อนไขให้รองรับ title
         const productName = product.title || product.name;
-        const matchName = productName.toLowerCase().includes(searchTerm);
-        const matchCategory = selectedCategory === 'All' || product.category === selectedCategory;
-
-        return matchName && matchCategory;
+        return productName.toLowerCase().includes(searchTerm);
     });
 
     renderProducts(filteredProducts);
@@ -90,61 +126,54 @@ function filterAndRenderProducts() {
 function handleCartClick(event) {
     const addToCartBtn = event.target.closest('.add-to-cart');
     if (!addToCartBtn) return;
-    
-    event.preventDefault(); 
-    
+
+    event.preventDefault();
+
     const productId = addToCartBtn.dataset.productId;
 
     if (cart[productId]) {
-        cart[productId] += 1; 
+        cart[productId] += 1;
     } else {
-        cart[productId] = 1;  
+        cart[productId] = 1;
     }
 
     localStorage.setItem('shopping_cart', JSON.stringify(cart));
-    updateCartBadge(); 
+    updateCartBadge();
 
-    // --- แสดงผล ID ที่เพิ่งกด และข้อมูลตะกร้าทั้งหมดใน Console ---
     console.log(`🛒 เพิ่งกดเพิ่มสินค้า ID: ${productId} ลงตะกร้า!`);
-    console.log("📦 สรุปข้อมูลตะกร้าปัจจุบัน (ID : จำนวนชิ้น):");
-    
-    // ใช้ console.table เพื่อแสดง Object 'cart' เป็นตารางที่ดูง่ายสุดๆ
-    console.table(cart); 
+    console.table(cart);
 }
+
 // ==========================================
-// 5. EVENT LISTENERS (The Triggers)
+// 5. EVENT LISTENERS
 // ==========================================
-searchInput.addEventListener('input', filterAndRenderProducts);
-categoryFilter.addEventListener('change', filterAndRenderProducts);
+if (searchInput) {
+    searchInput.addEventListener('input', applyLocalSearchFilter);
+}
+
+if (categoryFilter) {
+    categoryFilter.addEventListener('change', (e) => {
+        // เมื่อเลือก Dropdown หมวดหมู่ จะวิ่งไปดึง Database ใหม่ทันที
+        fetchProductsFromBackend(e.target.value.toLowerCase().trim());
+    });
+}
+
 productContainer.addEventListener('click', handleCartClick);
 
 // ==========================================
-// 6. INITIALIZATION & DATA FETCHING
+// 6. INITIALIZATION 
 // ==========================================
-async function loadProductsData() {
-    try {
-        const response = await fetch('data.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        allProducts = await response.json();
-        renderProducts(allProducts);
-
-        const savedCart = localStorage.getItem('shopping_cart');
-        if (savedCart) {
-            cart = JSON.parse(savedCart); 
-            updateCartBadge(); 
-        }
-
-    } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสินค้า:", error);
-        productContainer.innerHTML = `
-            <div class="col-12 text-center py-5">
-                <h3 class="text-danger mb-3">Error Loading Products</h3>
-                <p class="text-muted">ไม่สามารถโหลดข้อมูลสินค้าได้ในขณะนี้ โปรดตรวจสอบว่าไฟล์ data.json มีอยู่จริงและรันผ่าน Live Server</p>
-            </div>
-        `;
+function init() {
+    const savedCart = localStorage.getItem('shopping_cart');
+    if (savedCart) {
+        cart = JSON.parse(savedCart); 
+        updateCartBadge(); 
     }
+
+    // ตอนเปิดหน้าเว็บครั้งแรก ให้ดึงค่าจาก Dropdown (ถ้ามี) 
+    // หรือดึงค่า 'hat' เป็นค่าเริ่มต้น
+    const initialCategory = categoryFilter ? categoryFilter.value.toLowerCase().trim() : 'hat';
+    fetchProductsFromBackend(initialCategory);
 }
 
-loadProductsData();
+init();

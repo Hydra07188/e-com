@@ -1,0 +1,13 @@
+
+<!--
+"Act as a senior Full Stack Web Developer. Please write a Node.js and Express backend code for an E-commerce product catalog API. I need to create an endpoint to filter products by category based on this contract: GET /api/products?category=hat
+Requirements:
+
+Strictly follow the Controller-Route-Service pattern. Please separate the code into clearly named files (e.g., routes, controllers, and services).
+The data is currently stored in a local data.json file. The Service layer should use the fs module (Promises) to read the JSON file and use JavaScript to filter the products by category.
+Implement proper error handling with try-catch blocks in the controller and return the following exact HTTP status codes:
+200 OK: If products are successfully found. Return the JSON array: [{"id": 1, "name": "Cool Hat", "category": "hat", "price": 15.00}]
+404 Not Found: If reading is successful but the filtered array is empty (no products match the category). Return exactly: {"error": "Category not found"}
+500 Internal Server Error: If the JSON file read fails or the server crashes. Return exactly: {"error": "Internal Server Error"}
+CRITICAL: You must include clear and detailed comments explaining the code logic in every single file, especially explaining the routing, file reading, and error handling."
+ -->	
