@@ -1,0 +1,62 @@
+[
+  {
+    "username": "john@example.com",
+    "password": "e10adc3949ba59abbe56e057f20f883e",
+    "firstName": "John",
+    "registrationDate": "2026-05-01T08:00:00Z"
+  },
+  {
+    "username": "jane@example.com",
+    "password": "pound2006x2549x07188",
+    "firstName": "Jane",
+    "registrationDate": "2026-05-01T09:15:00Z"
+  },
+  {
+    "username": "admin@example.com",
+    "password": "21232f297a57a5a743894a0e4a801fc3",
+    "firstName": "Admin",
+    "registrationDate": "2026-05-02T10:30:00Z"
+  },
+  {
+    "username": "alice@example.com",
+    "password": "25d55ad283aa400af464c76d713c07ad",
+    "firstName": "Alice",
+    "registrationDate": "2026-05-02T11:45:00Z"
+  },
+  {
+    "username": "bob@example.com",
+    "password": "d8578edf8458ce06fbc5bb76a58c5ca4",
+    "firstName": "Bob",
+    "registrationDate": "2026-05-03T13:00:00Z"
+  },
+  {
+    "username": "charlie@example.com",
+    "password": "25f9e794323b453885f5181f1b624d0b",
+    "firstName": "Charlie",
+    "registrationDate": "2026-05-03T14:20:00Z"
+  },
+  {
+    "username": "dave@example.com",
+    "password": "81dc9bdb52d04dc20036dbd8313ed055",
+    "firstName": "Dave",
+    "registrationDate": "2026-05-04T08:10:00Z"
+  },
+  {
+    "username": "eve@example.com",
+    "password": "96e79218965eb72c92a549dd5a330112",
+    "firstName": "Eve",
+    "registrationDate": "2026-05-04T09:05:00Z"
+  },
+  {
+    "username": "frank@example.com",
+    "password": "827ccb0eea8a706c4c34a16891f84e7b",
+    "firstName": "Frank",
+    "registrationDate": "2026-05-04T10:50:00Z"
+  },
+  {
+    "username": "grace@example.com",
+    "password": "098f6bcd4621d373cade4e832627b4f6",
+    "firstName": "Grace",
+    "registrationDate": "2026-05-04T12:00:00Z"
+  }
+]

@@ -75,11 +75,13 @@ async function fetchProductsFromBackend(category) {
     try {
         productContainer.innerHTML = '<h3 class="text-center w-100 py-5">Loading...</h3>';
 
-        // จัดการกรณีค่าว่าง ให้ดึงค่า hat มาโชว์เป็นค่าเริ่มต้น (หรือค่าอื่นๆ ที่คุณต้องการ)
-        const queryParam = (!category || category === 'All') ? 'hat' : category;
+        const normalizedCategory = category ? category.toLowerCase().trim() : 'all';
+        const queryString = (!normalizedCategory || normalizedCategory === 'all')
+            ? ''
+            : `?category=${encodeURIComponent(normalizedCategory)}`;
         
         // ยิง Request พร้อม Query ตรงตาม Contract!
-        const response = await fetch(`/api/products?category=${queryParam}`); 
+        const response = await fetch(`/api/products${queryString}`); 
         
         // ดัก Error 404 (หาหมวดหมู่ไม่เจอใน Database)
         if (response.status === 404) {
@@ -170,9 +172,7 @@ function init() {
         updateCartBadge(); 
     }
 
-    // ตอนเปิดหน้าเว็บครั้งแรก ให้ดึงค่าจาก Dropdown (ถ้ามี) 
-    // หรือดึงค่า 'hat' เป็นค่าเริ่มต้น
-    const initialCategory = categoryFilter ? categoryFilter.value.toLowerCase().trim() : 'hat';
+    const initialCategory = categoryFilter ? categoryFilter.value.toLowerCase().trim() : 'all';
     fetchProductsFromBackend(initialCategory);
 }
 
