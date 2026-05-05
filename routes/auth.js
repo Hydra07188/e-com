@@ -1,6 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 const dbPromise = require('../database');
 
 const router = express.Router();
@@ -8,6 +10,8 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_only_change_this_jwt_secret';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '2h';
 const SALT_ROUNDS = 10;
+const AUTH_USER_FILE = path.join(__dirname, '..', 'auth_user.json');
+const PASSWORD_RULE = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
 function buildUserResponse(user) {
     return {
@@ -29,6 +33,22 @@ function signToken(user) {
     );
 }
 
+function readAuthUsers() {
+    if (!fs.existsSync(AUTH_USER_FILE)) {
+        return [];
+    }
+
+    return JSON.parse(fs.readFileSync(AUTH_USER_FILE, 'utf8'));
+}
+
+function writeAuthUsers(users) {
+    fs.writeFileSync(AUTH_USER_FILE, `${JSON.stringify(users, null, 2)}\n`, 'utf8');
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 function authenticateToken(req, res, next) {
     const authHeader = req.headers.authorization || '';
     const [scheme, token] = authHeader.split(' ');
@@ -48,27 +68,46 @@ function authenticateToken(req, res, next) {
 router.post('/register', async (req, res) => {
     try {
         const { email, password, firstName } = req.body;
+        const normalizedEmail = email ? email.trim().toLowerCase() : '';
+        const normalizedFirstName = firstName ? firstName.trim() : '';
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required.' });
+        if (!normalizedFirstName || !normalizedEmail || !password) {
+            return res.status(400).json({ error: 'Name, email, and password are required.' });
         }
 
-        if (password.length < 6) {
-            return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+        if (!isValidEmail(normalizedEmail)) {
+            return res.status(400).json({ error: 'Please enter a valid email address.' });
+        }
+
+        if (!PASSWORD_RULE.test(password)) {
+            return res.status(400).json({
+                error: 'Password must be at least 8 characters and include one uppercase letter and one symbol.'
+            });
         }
 
         const db = await dbPromise;
-        const existingUser = await db.get('SELECT id FROM users WHERE email = ?', [email]);
+        const authUsers = readAuthUsers();
+        const existingJsonUser = authUsers.some((user) => user.username.toLowerCase() === normalizedEmail);
+        const existingUser = await db.get('SELECT id FROM users WHERE email = ?', [normalizedEmail]);
 
-        if (existingUser) {
+        if (existingJsonUser || existingUser) {
             return res.status(409).json({ error: 'Email is already registered.' });
         }
 
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
         const registrationDate = new Date().toISOString();
+
+        authUsers.push({
+            username: normalizedEmail,
+            password: passwordHash,
+            firstName: normalizedFirstName,
+            registrationDate
+        });
+        writeAuthUsers(authUsers);
+
         const result = await db.run(
             'INSERT INTO users (email, password, firstName, registrationDate) VALUES (?, ?, ?, ?)',
-            [email, passwordHash, firstName || null, registrationDate]
+            [normalizedEmail, passwordHash, normalizedFirstName, registrationDate]
         );
 
         const user = await db.get(

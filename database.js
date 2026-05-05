@@ -50,12 +50,23 @@ function loadSeedUsers() {
 
     const rawUsers = JSON.parse(fs.readFileSync(AUTH_USER_FILE, 'utf8'));
 
-    return rawUsers.map((user) => ({
-        username: user.username,
-        password: legacyMd5PasswordMap[user.password] || user.password,
-        firstName: user.firstName,
-        registrationDate: user.registrationDate
-    }));
+    return rawUsers.map((user) => {
+        if (user.password?.startsWith('$2')) {
+            return {
+                username: user.username,
+                passwordHash: user.password,
+                firstName: user.firstName,
+                registrationDate: user.registrationDate
+            };
+        }
+
+        return {
+            username: user.username,
+            password: legacyMd5PasswordMap[user.password] || user.password,
+            firstName: user.firstName,
+            registrationDate: user.registrationDate
+        };
+    });
 }
 
 async function seedProducts(db) {
@@ -80,9 +91,10 @@ async function seedUsers(db) {
 
     for (const user of users) {
         const existingUser = await db.get('SELECT id, password FROM users WHERE email = ?', [user.username]);
-        const passwordHash = existingUser && await bcrypt.compare(user.password, existingUser.password)
-            ? existingUser.password
-            : await bcrypt.hash(user.password, SALT_ROUNDS);
+        const passwordHash = user.passwordHash
+            || (existingUser && await bcrypt.compare(user.password, existingUser.password)
+                ? existingUser.password
+                : await bcrypt.hash(user.password, SALT_ROUNDS));
 
         if (existingUser) {
             await db.run(
