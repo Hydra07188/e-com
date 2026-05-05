@@ -4,6 +4,7 @@ const path = require('path');
 
 const productRoutes = require('./routes/routes');
 const authRoutes = require('./routes/auth');
+const checkoutRoutes = require('./routes/checkout');
 
 const app = express();
 const PORT = process.env.PORT || 5500;
@@ -14,6 +15,7 @@ app.use(express.static(path.join(__dirname)));
 
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok' });

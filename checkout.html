@@ -88,6 +88,7 @@
 		        <div class="col-md-6 mb-5 mb-md-0">
 		          <h2 class="h3 mb-3 text-black">Billing Details</h2>
 		          <div class="p-3 p-lg-5 border bg-white">
+		            <div id="checkout-alert" class="alert alert-danger" style="display: none;" role="alert"></div>
 		            <div class="form-group">
 		              <label for="c_country" class="text-black">Country <span class="text-danger">*</span></label>
 		              <select id="c_country" class="form-control">
@@ -279,25 +280,25 @@
 		                    <th>Product</th>
 		                    <th>Total</th>
 		                  </thead>
-		                  <tbody>
+		                  <tbody id="checkout-order-tbody">
 		                    <tr>
-		                      <td>Top Up T-Shirt <strong class="mx-2">x</strong> 1</td>
-		                      <td>$250.00</td>
-		                    </tr>
-		                    <tr>
-		                      <td>Polo Shirt <strong class="mx-2">x</strong>   1</td>
-		                      <td>$100.00</td>
+		                      <td colspan="2">Loading cart...</td>
 		                    </tr>
 		                    <tr>
 		                      <td class="text-black font-weight-bold"><strong>Cart Subtotal</strong></td>
-		                      <td class="text-black">$350.00</td>
+		                      <td class="text-black" id="checkout-subtotal">$0.00</td>
 		                    </tr>
 		                    <tr>
 		                      <td class="text-black font-weight-bold"><strong>Order Total</strong></td>
-		                      <td class="text-black font-weight-bold"><strong>$350.00</strong></td>
+		                      <td class="text-black font-weight-bold"><strong id="checkout-total">$0.00</strong></td>
 		                    </tr>
 		                  </tbody>
 		                </table>
+
+		                <div class="form-group mb-5">
+		                  <label for="c_card_number" class="text-black">Credit Card Number <span class="text-danger">*</span></label>
+		                  <input type="text" class="form-control" id="c_card_number" maxlength="19" inputmode="numeric" placeholder="16-digit card number">
+		                </div>
 
 		                <div class="border p-3 mb-3">
 		                  <h3 class="h6 mb-0"><a class="d-block" data-bs-toggle="collapse" href="#collapsebank" role="button" aria-expanded="false" aria-controls="collapsebank">Direct Bank Transfer</a></h3>
@@ -330,7 +331,7 @@
 		                </div>
 
 		                <div class="form-group">
-		                  <button class="btn btn-black btn-lg py-3 btn-block" onclick="window.location='thankyou.html'">Place Order</button>
+		                  <button id="place-order-btn" class="btn btn-black btn-lg py-3 btn-block" type="button">Place Order</button>
 		                </div>
 
 		              </div>
@@ -452,6 +453,7 @@
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<script src="js/tiny-slider.js"></script>
 		<script src="js/custom.js"></script>
+		<script src="js/checkout.js"></script>
 	</body>
 
 </html>

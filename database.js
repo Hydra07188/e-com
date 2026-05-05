@@ -135,6 +135,34 @@ async function setupDatabase() {
             firstName TEXT,
             registrationDate TEXT
         );
+
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            orderNumber TEXT UNIQUE NOT NULL,
+            email TEXT NOT NULL,
+            firstName TEXT NOT NULL,
+            lastName TEXT NOT NULL,
+            address TEXT NOT NULL,
+            stateCountry TEXT NOT NULL,
+            postalZip TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            subtotal REAL NOT NULL,
+            tax REAL NOT NULL,
+            total REAL NOT NULL,
+            status TEXT NOT NULL DEFAULT 'created',
+            createdAt TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS order_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            orderId INTEGER NOT NULL,
+            productId INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            price REAL NOT NULL,
+            quantity INTEGER NOT NULL,
+            lineTotal REAL NOT NULL,
+            FOREIGN KEY (orderId) REFERENCES orders(id)
+        );
     `);
 
     await ensureColumn(db, 'users', 'registrationDate', 'TEXT');

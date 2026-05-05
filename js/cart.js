@@ -27,8 +27,8 @@ function renderCart() {
             cartTbody.innerHTML = `
                 <tr>
                     <td colspan="6" class="text-center py-5">
-                        <h4 class="text-muted">ตะกร้าสินค้าของคุณว่างเปล่า</h4>
-                        <a href="shop.html" class="btn btn-black mt-3">กลับไปเลือกซื้อสินค้า</a>
+                        <h4 class="text-muted">Your cart is empty</h4>
+                        <a href="shop.html" class="btn btn-black mt-3">Continue shopping</a>
                     </td>
                 </tr>
             `;
@@ -132,8 +132,7 @@ if (cartTbody) {
 // ==========================================
 async function initCart() {
     try {
-        // 1. ดึงข้อมูลสินค้าทั้งหมดจาก JSON ก่อน
-        const response = await fetch('data.json');
+        const response = await fetch('/api/products');
         if (!response.ok) throw new Error('Network response was not ok');
         allProducts = await response.json();
 
@@ -147,7 +146,7 @@ async function initCart() {
         renderCart();
         
     } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
+        console.error("Error loading cart data:", error);
     }
 }
 

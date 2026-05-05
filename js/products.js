@@ -23,7 +23,7 @@ function renderProducts(productsToRender) {
         productContainer.innerHTML = `
             <div class="col-12 text-center py-5">
                 <h3 class="text-black mb-3">No results found</h3>
-                <p class="text-muted">ไม่พบสินค้าในหมวดหมู่นี้ในฐานข้อมูลครับ</p>
+                <p class="text-muted">Try another search term or category.</p>
             </div>
         `;
         return;
@@ -102,11 +102,11 @@ async function fetchProductsFromBackend(category) {
         applyLocalSearchFilter();
 
     } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลสินค้า:", error);
+        console.error("Error loading products:", error);
         productContainer.innerHTML = `
             <div class="col-12 text-center py-5">
                 <h3 class="text-danger mb-3">Error Loading Products</h3>
-                <p class="text-muted">ไม่สามารถเชื่อมต่อฐานข้อมูล SQLite ได้ โปรดตรวจสอบเซิร์ฟเวอร์</p>
+                <p class="text-muted">Please check that the server is running and try again.</p>
             </div>
         `;
     }
@@ -142,8 +142,7 @@ function handleCartClick(event) {
     localStorage.setItem('shopping_cart', JSON.stringify(cart));
     updateCartBadge();
 
-    console.log(`🛒 เพิ่งกดเพิ่มสินค้า ID: ${productId} ลงตะกร้า!`);
-    console.table(cart);
+    console.log(`Added product ID ${productId} to cart.`);
 }
 
 // ==========================================
