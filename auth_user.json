@@ -58,5 +58,11 @@
     "password": "098f6bcd4621d373cade4e832627b4f6",
     "firstName": "Grace",
     "registrationDate": "2026-05-04T12:00:00Z"
+  },
+  {
+    "username": "hydra@example.com",
+    "password": "$2b$10$m1bfMYAyNz6NMr5GjBxeiuuyBrfNGcaohqYpHo8Cs7RtOgR9z0xyi",
+    "firstName": "Hydra",
+    "registrationDate": "2026-05-05T03:18:19.781Z"
   }
 ]

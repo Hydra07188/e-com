@@ -1,0 +1,13 @@
+GenAI Prompt
+Act as a Security Engineer and full-stack Node.js developer. Build a user registration feature for an Express and SQLite ecommerce project. Use the following contract:
+
+Create POST /api/auth/register.
+Request body must include firstName, email, and password.
+Validate on the frontend and backend that password is at least 8 characters and includes one uppercase letter and one special character.
+Check duplicate username/email against both auth_user.json and the SQLite users table.
+Never store plaintext passwords. Use bcrypt to hash the password.
+Append the new registered user to auth_user.json with username, bcrypt password hash, firstName, and registrationDate.
+Insert the same user into the SQLite users table.
+Sign a JWT after successful registration and return { message, token, user }.
+Create register.html and js/register.js so the user can register from the browser, store the JWT in localStorage, and redirect to shop.html.
+Add comments explaining the security logic where useful.
