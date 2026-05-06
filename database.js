@@ -4,7 +4,7 @@ const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 const bcrypt = require('bcryptjs');
 
-const DB_FILE = path.join(__dirname, 'database.sqlite');
+const DB_FILE = path.join(__dirname, 'store.db');
 const AUTH_USER_FILE = path.join(__dirname, 'auth_user.json');
 const SALT_ROUNDS = 10;
 
@@ -118,8 +118,10 @@ async function setupDatabase() {
         driver: sqlite3.Database
     });
 
+    await db.exec('PRAGMA foreign_keys = ON');
+
     await db.exec(`
-        CREATE TABLE IF NOT EXISTS products (
+        CREATE TABLE IF NOT EXISTS Products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             url TEXT,
             image TEXT,
@@ -128,7 +130,7 @@ async function setupDatabase() {
             category TEXT
         );
 
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE IF NOT EXISTS Users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
@@ -136,9 +138,13 @@ async function setupDatabase() {
             registrationDate TEXT
         );
 
-        CREATE TABLE IF NOT EXISTS orders (
+        CREATE TABLE IF NOT EXISTS Orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             orderNumber TEXT UNIQUE NOT NULL,
+            user_id INTEGER NOT NULL,
+            product_id INTEGER NOT NULL,
+            quantity INTEGER NOT NULL,
+            total_price REAL NOT NULL,
             email TEXT NOT NULL,
             firstName TEXT NOT NULL,
             lastName TEXT NOT NULL,
@@ -150,10 +156,12 @@ async function setupDatabase() {
             tax REAL NOT NULL,
             total REAL NOT NULL,
             status TEXT NOT NULL DEFAULT 'created',
-            createdAt TEXT NOT NULL
+            createdAt TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES Users(id),
+            FOREIGN KEY (product_id) REFERENCES Products(id)
         );
 
-        CREATE TABLE IF NOT EXISTS order_items (
+        CREATE TABLE IF NOT EXISTS Order_Items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             orderId INTEGER NOT NULL,
             productId INTEGER NOT NULL,
@@ -161,7 +169,8 @@ async function setupDatabase() {
             price REAL NOT NULL,
             quantity INTEGER NOT NULL,
             lineTotal REAL NOT NULL,
-            FOREIGN KEY (orderId) REFERENCES orders(id)
+            FOREIGN KEY (orderId) REFERENCES Orders(id),
+            FOREIGN KEY (productId) REFERENCES Products(id)
         );
     `);
 

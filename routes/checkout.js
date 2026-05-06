@@ -17,6 +17,22 @@ function roundMoney(value) {
     return Math.round(value * 100) / 100;
 }
 
+async function getOrCreateCheckoutUser(db, billing) {
+    const email = cleanText(billing.email).toLowerCase();
+    const existingUser = await db.get('SELECT id FROM Users WHERE email = ?', [email]);
+
+    if (existingUser) {
+        return existingUser.id;
+    }
+
+    const result = await db.run(
+        'INSERT INTO Users (email, password, firstName, registrationDate) VALUES (?, ?, ?, ?)',
+        [email, 'CHECKOUT_GUEST', cleanText(billing.firstName), new Date().toISOString()]
+    );
+
+    return result.lastID;
+}
+
 function validateCheckout(body) {
     const billing = body.billing || {};
     const payment = body.payment || {};
@@ -94,14 +110,21 @@ router.post('/', async (req, res) => {
         const subtotal = roundMoney(orderLines.reduce((sum, item) => sum + item.lineTotal, 0));
         const tax = roundMoney(subtotal * TAX_RATE);
         const total = roundMoney(subtotal + tax);
+        const userId = await getOrCreateCheckoutUser(db, billing);
+        const primaryLine = orderLines[0];
 
         const result = await db.run(
             `INSERT INTO orders (
-                orderNumber, email, firstName, lastName, address, stateCountry,
+                orderNumber, user_id, product_id, quantity, total_price,
+                email, firstName, lastName, address, stateCountry,
                 postalZip, phone, subtotal, tax, total, status, createdAt
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 orderNumber,
+                userId,
+                primaryLine.productId,
+                orderLines.reduce((sum, item) => sum + item.quantity, 0),
+                total,
                 cleanText(billing.email).toLowerCase(),
                 cleanText(billing.firstName),
                 cleanText(billing.lastName),

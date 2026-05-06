@@ -944,3 +944,161 @@ form.bg-white,
     height: 36px;
   }
 }
+
+/* Responsive ecommerce polish */
+img {
+  max-width: 100%;
+}
+
+.row {
+  min-width: 0;
+}
+
+@media (max-width: 991px) {
+  .custom-navbar .navbar-collapse {
+    padding-top: 18px;
+  }
+
+  .custom-navbar .custom-navbar-nav li {
+    margin: 4px 0;
+  }
+
+  .custom-navbar .custom-navbar-cta {
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .hero .hero-img-wrap img {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    max-width: 560px;
+    margin-top: 32px;
+  }
+
+  .hero .hero-img-wrap:after {
+    right: 10px;
+    top: 12px;
+  }
+
+  .footer-section .sofa-img {
+    position: static;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .footer-section .sofa-img img {
+    max-width: 260px;
+  }
+}
+
+@media (max-width: 767px) {
+  body {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+
+  .hero .btn {
+    width: 100%;
+    margin: 0 0 12px 0 !important;
+  }
+
+  .untree_co-section,
+  .product-section,
+  .why-choose-section,
+  .we-help-section,
+  .blog-section {
+    padding: 48px 0;
+  }
+
+  .product-section .product-item {
+    margin-bottom: 18px;
+  }
+
+  .product-section .product-item .product-thumbnail {
+    height: 170px;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 15px;
+  }
+
+  .p-3.p-lg-5.border.bg-white,
+  form.bg-white {
+    padding: 24px !important;
+  }
+
+  .site-blocks-table table,
+  .site-blocks-table thead,
+  .site-blocks-table tbody,
+  .site-blocks-table th,
+  .site-blocks-table td,
+  .site-blocks-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .site-blocks-table thead {
+    display: none;
+  }
+
+  .site-blocks-table tbody tr {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    padding: 14px;
+  }
+
+  .site-blocks-table td {
+    border: 0 !important;
+    padding: 10px !important;
+  }
+
+  .site-blocks-table .product-thumbnail {
+    width: 100%;
+  }
+
+  .site-blocks-table .product-thumbnail img {
+    max-height: 150px;
+    object-fit: contain;
+  }
+
+  .site-block-order-table td,
+  .site-block-order-table th {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 575px) {
+  .custom-navbar .navbar-brand {
+    font-size: 28px;
+  }
+
+  .hero h1 {
+    font-size: 34px;
+  }
+
+  .section-title {
+    font-size: 26px;
+  }
+
+  .footer-section {
+    padding: 52px 0;
+  }
+}
