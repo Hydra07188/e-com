@@ -70,13 +70,13 @@ function loadSeedUsers() {
 }
 
 async function seedProducts(db) {
-    const { count } = await db.get('SELECT COUNT(*) as count FROM products');
+    const { count } = await db.get('SELECT COUNT(*) as count FROM Products');
 
     if (count > 0) {
         return;
     }
 
-    await db.run(`INSERT INTO products (url, image, title, price, category) VALUES 
+    await db.run(`INSERT INTO Products (url, image, title, price, category) VALUES 
         ('#', 'images/product-3.png', 'Nordic Chair', 50.00, 'chair'),
         ('#', 'images/product-1.png', 'Kruzo Aero Chair', 78.00, 'chair'),
         ('#', 'images/product-2.png', 'Ergonomic Office Chair', 43.00, 'chair'),
@@ -90,7 +90,7 @@ async function seedUsers(db) {
     const users = loadSeedUsers();
 
     for (const user of users) {
-        const existingUser = await db.get('SELECT id, password FROM users WHERE email = ?', [user.username]);
+        const existingUser = await db.get('SELECT id, password FROM Users WHERE email = ?', [user.username]);
         const passwordHash = user.passwordHash
             || (existingUser && await bcrypt.compare(user.password, existingUser.password)
                 ? existingUser.password
@@ -98,14 +98,14 @@ async function seedUsers(db) {
 
         if (existingUser) {
             await db.run(
-                `UPDATE users
+                `UPDATE Users
                  SET password = ?, firstName = COALESCE(firstName, ?), registrationDate = COALESCE(registrationDate, ?)
                  WHERE id = ?`,
                 [passwordHash, user.firstName, user.registrationDate, existingUser.id]
             );
         } else {
             await db.run(
-                'INSERT INTO users (email, password, firstName, registrationDate) VALUES (?, ?, ?, ?)',
+                'INSERT INTO Users (email, password, firstName, registrationDate) VALUES (?, ?, ?, ?)',
                 [user.username, passwordHash, user.firstName, user.registrationDate]
             );
         }
@@ -174,7 +174,7 @@ async function setupDatabase() {
         );
     `);
 
-    await ensureColumn(db, 'users', 'registrationDate', 'TEXT');
+    await ensureColumn(db, 'Users', 'registrationDate', 'TEXT');
     await seedProducts(db);
     await seedUsers(db);
 

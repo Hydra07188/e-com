@@ -1,8 +1,11 @@
 const express = require('express');
-const router = express.Router();
 const productController = require('../controllers/productController');
 
-// จับคู่ GET Request เข้ากับฟังก์ชัน getProducts[cite: 9]
+const router = express.Router();
+
+// Product Catalog route boundary.
+// This route intentionally has no Auth middleware. That decoupling proves that
+// guest users can browse products even if Identity/Auth is disabled.
 router.get('/', productController.getProducts);
 
 module.exports = router;

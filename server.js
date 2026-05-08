@@ -5,6 +5,7 @@ const path = require('path');
 const productRoutes = require('./routes/routes');
 const authRoutes = require('./routes/auth');
 const checkoutRoutes = require('./routes/checkout');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 5500;
@@ -20,6 +21,8 @@ app.use('/api/checkout', checkoutRoutes);
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
