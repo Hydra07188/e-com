@@ -1,16 +1,21 @@
-// Central error handler.
-// Controllers can pass business errors here instead of duplicating response
-// logic. In a horizontally scaled system, this also standardizes API errors
-// across future services.
+const env = require('../config/env');
+
 function errorHandler(error, req, res, next) {
     const statusCode = error.statusCode || 500;
+    const isProduction = env.nodeEnv === 'production';
 
-    if (statusCode >= 500) {
-        console.error('Server Error:', error);
-    }
+    console.error('Request Error:', {
+        method: req.method,
+        path: req.originalUrl,
+        statusCode,
+        message: error.message,
+        stack: error.stack
+    });
 
     res.status(statusCode).json({
-        error: error.message || 'Internal Server Error'
+        error: isProduction && statusCode >= 500
+            ? 'Oops, something went wrong.'
+            : error.message || 'Internal Server Error'
     });
 }
 

@@ -6,6 +6,8 @@ const { cleanText, roundMoney } = require('../models/orderModel');
 const EMAIL_RULE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CARD_RULE = /^\d{16}$/;
 const TAX_RATE = 0;
+const MAX_CART_ITEMS = 50;
+const MAX_ITEM_QUANTITY = 99;
 
 // Order Service boundary.
 // This file owns checkout business logic. It depends on user identity and
@@ -26,6 +28,10 @@ function validateCheckout(body) {
         throw makeServiceError('Cart is empty.');
     }
 
+    if (cartItems.length > MAX_CART_ITEMS) {
+        throw makeServiceError(`Cart cannot contain more than ${MAX_CART_ITEMS} line items.`);
+    }
+
     if (!EMAIL_RULE.test(cleanText(billing.email))) {
         throw makeServiceError('Please enter a valid email address.');
     }
@@ -44,7 +50,11 @@ function validateCheckout(body) {
     const invalidItem = cartItems.find((item) => {
         const productId = Number(item.productId);
         const quantity = Number(item.quantity);
-        return !Number.isInteger(productId) || productId <= 0 || !Number.isInteger(quantity) || quantity <= 0;
+        return !Number.isInteger(productId)
+            || productId <= 0
+            || !Number.isInteger(quantity)
+            || quantity <= 0
+            || quantity > MAX_ITEM_QUANTITY;
     });
 
     if (invalidItem) {

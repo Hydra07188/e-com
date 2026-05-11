@@ -2,7 +2,7 @@
   "name": "e-con",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "node -e \"require('./database').then(db => db.get('SELECT COUNT(*) AS count FROM users')).then(row => { if (!row.count) throw new Error('No seeded users found'); console.log('Database/auth seed check passed'); })\""
@@ -22,6 +22,7 @@
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "sqlite": "^5.1.1",

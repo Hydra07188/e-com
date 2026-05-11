@@ -3,9 +3,10 @@ const path = require('path');
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 const bcrypt = require('bcryptjs');
+const env = require('./config/env');
 
-const DB_FILE = path.join(__dirname, 'store.db');
-const AUTH_USER_FILE = path.join(__dirname, 'auth_user.json');
+const DB_FILE = env.dbFile;
+const AUTH_USER_FILE = env.authUserFile;
 const SALT_ROUNDS = 10;
 
 const legacyMd5PasswordMap = {

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const env = require('./config/env');
 
 const productRoutes = require('./routes/routes');
 const authRoutes = require('./routes/auth');
@@ -8,10 +9,10 @@ const checkoutRoutes = require('./routes/checkout');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
-const PORT = process.env.PORT || 5500;
+const PORT = env.port;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: env.jsonBodyLimit }));
 app.use(express.static(path.join(__dirname)));
 
 app.use('/api/products', productRoutes);
@@ -25,5 +26,5 @@ app.get('/api/health', (req, res) => {
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT} in ${env.nodeEnv} mode`);
 });
